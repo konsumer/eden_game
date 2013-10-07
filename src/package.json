@@ -1,9 +1,9 @@
 {
   "name": "edens-game",
   "version": "0.0.0",
-  "main": "index.html",
+  "main": "index-nw.html",
   "window": {
     "title": "Eden's Game",
-    "toolbar": false
+    "toolbar":false
   }
 }
