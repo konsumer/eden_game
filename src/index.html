@@ -7,6 +7,9 @@
 			margin: 0;
 			padding: 0;
 			background-color: #000;
+			width: 100%;
+			height: 100%;
+			overflow:hidden;
 		}
 	</style>
 	
@@ -14,12 +17,45 @@
 	<script src="pixi.js"></script>
 </head>
 <body>
-	<script>	
-	var assetsToLoader = ["data/spineboy.json", "data/spineboySpineData.json", "data/woods_bg.jpg", "data/ground_fg.png"];
-	loader = new PIXI.AssetLoader(assetsToLoader);
-	loader.onComplete = onAssetsLoaded
-	loader.load();
-	
+	<script>
+
+
+	var ParallaxScene = function(stage, layers, cb){
+		var scenery = this;
+		scenery.position=0;
+		var loader = new PIXI.AssetLoader(layers);
+		scenery.layers = [];
+		scenery.layers2 = [];
+		loader.onComplete = function(){
+			layers.forEach(function(layer, i){
+				scenery.layers[i] = PIXI.Sprite.fromImage(layer);
+				stage.addChild(scenery.layers[i]);
+				scenery.layers2[i] = PIXI.Sprite.fromImage(layer);
+				stage.addChild(scenery.layers2[i]);
+			});
+			cb();
+		}
+		loader.load();
+	}
+
+	ParallaxScene.prototype.update = function(){
+		var scenery = this;
+		scenery.position -= 1;
+		scenery.layers.forEach(function(layer, i){
+			layer.position.x = (scenery.position*(i+1)*2) % layer.width;
+			scenery.layers2[i].position.x = ((scenery.position*(i+1)*2) % layer.width) + layer.width;
+		});
+	}
+
+	ParallaxScene.prototype.resize = function(){
+		var scenery = this;
+		scenery.layers.forEach(function(layer, i){
+			layer.scale.x = layer.scale.y = scenery.layers2[i].scale.x = scenery.layers2[i].scale.y = window.innerHeight / 512;
+			layer.position.y = window.innerHeight - layer.height;
+			scenery.layers2[i].position.y = layer.position.y;
+		});
+	}
+
 	var stage = new PIXI.Stage(0x000000, true);
 	var renderer = new PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 	renderer.view.style.display = "block";
@@ -27,73 +63,43 @@
 	renderer.view.style.height = "100%"
 	document.body.appendChild(renderer.view);
 
-	var spineBoy;
-	
-	var postition = 0;
-	var background;
-	var background2;
-	
-	function onAssetsLoaded(){
-		background = PIXI.Sprite.fromImage("data/woods_bg.jpg");
-		background2 = PIXI.Sprite.fromImage("data/woods_bg.jpg");
-		stage.addChild(background);
-		stage.addChild(background2);
-		
-		
-		var pixie = new PIXI.Spine("data/spineboySpineData.json");
-		var scale = 0.3;//window.innerHeight / 700;
-		pixie.position.x = 1024/3;
-		pixie.position.y =	512;
-		pixie.scale.x = pixie.scale.y = scale;
-		pixie.stateData.setMixByName("walk", "jump", 0.1);
-		pixie.stateData.setMixByName("jump", "walk", 0.4);
-		pixie.state.setAnimationByName("walk", true);
+	var loader = new PIXI.AssetLoader(["data/spineboy.json", "data/spineboySpineData.json"]);
+	loader.onComplete = function(){
+		var scenery = new ParallaxScene(stage, [
+			'data/forest/layer3.jpg',
+			'data/forest/layer2.png',
+			'data/forest/layer1.png'
+		], function(){
+			var pixie = new PIXI.Spine("data/spineboySpineData.json");
+			pixie.stateData.setMixByName("walk", "jump", 0.1);
+			pixie.stateData.setMixByName("jump", "walk", 0.8);
+			pixie.state.setAnimationByName("walk", true);
+			stage.addChildAt(pixie, 4);
 
-		stage.addChild(pixie);
+			window.onresize = function(){
+				renderer.resize(window.innerWidth,window.innerHeight);
+				pixie.position.x = window.innerWidth/2;
+				pixie.position.y = window.innerHeight - ((window.innerHeight / 1024) * 180);
+				pixie.scale.x = pixie.scale.y = window.innerHeight / 1024;
+				scenery.resize();
+			}
+			window.onresize();
 
+			stage.mousedown = stage.touchstart = function(){
+				pixie.state.setAnimationByName("jump", false);
+				pixie.state.addAnimationByName("walk", true);
+			}
+		});
 
-		foreground = PIXI.Sprite.fromImage("data/ground_fg.png");
-		foreground2 = PIXI.Sprite.fromImage("data/ground_fg.png");
-		stage.addChild(foreground);
-		stage.addChild(foreground2);
-		foreground.position.y = foreground2.position.y = 640 - foreground2.height;
-		
-		stage.mousedown = stage.touchstart = function(){
-			pixie.state.setAnimationByName("jump", false);
-			pixie.state.addAnimationByName("walk", true);
+		function animate(){
+		    requestAnimFrame(animate);
+		    scenery.update();
+		    renderer.render(stage);
 		}
-
+		
 		animate();
 	}
-	
-	function animate(){
-	    // update scenery layers
-	    postition += 1;
-		background.position.x = -(postition * 0.6);
-		background.position.x %= 1286 * 2;
-		
-		if(background.position.x<0)background.position.x += 1286 * 2;
-		background.position.x -= 1286;
-		background2.position.x = -(postition * 0.6) + 1286;
-		background2.position.x %= 1286 * 2;
-		
-		if(background2.position.x<0)background2.position.x += 1286 * 2;
-		background2.position.x -= 1286;
-		foreground.position.x = -postition;
-		foreground.position.x %= 1286 * 2;
-		
-		if(foreground.position.x<0)foreground.position.x += 1286 * 2;
-		foreground.position.x -= 1286;
-		foreground2.position.x = -postition + 1286;
-		foreground2.position.x %= 1286 * 2;
-		
-		if(foreground2.position.x<0)foreground2.position.x += 1286 * 2;
-		foreground2.position.x -= 1286;
-		
-	    requestAnimFrame( animate );
-	    renderer.render(stage);
-	}
-	
+	loader.load();	
 
 	</script>
 
