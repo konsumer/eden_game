@@ -4,6 +4,8 @@
   "main": "index.html",
   "window": {
     "title": "Eden's Game",
-    "toolbar":false
+    "toolbar":false,
+    "width": 1024,
+    "height": 640
   }
 }

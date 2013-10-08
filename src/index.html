@@ -1,25 +1,101 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<title>Eden's Game</title>
-		<style>
-		html, body, div, canvas {
-			width: 100%;
-			height: 100%;
-			padding: 0;
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Eden's Game</title>
+	<style>
+		body, html, canvas {
 			margin: 0;
-			overflow: hidden;
+			padding: 0;
+			background-color: #000;
 		}
-		</style>
-	</head>
-	<body>
-		<canvas></canvas>
+	</style>
+	
+	
+	<script src="pixi.js"></script>
+</head>
+<body>
+	<script>	
+	var assetsToLoader = ["data/spineboy.json", "data/spineboySpineData.json", "data/woods_bg.jpg", "data/ground_fg.png"];
+	loader = new PIXI.AssetLoader(assetsToLoader);
+	loader.onComplete = onAssetsLoaded
+	loader.load();
+	
+	var stage = new PIXI.Stage(0x000000, true);
+	var renderer = new PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
+	renderer.view.style.display = "block";
+	renderer.view.style.width = "100%"
+	renderer.view.style.height = "100%"
+	document.body.appendChild(renderer.view);
+
+	var spineBoy;
+	
+	var postition = 0;
+	var background;
+	var background2;
+	
+	function onAssetsLoaded(){
+		background = PIXI.Sprite.fromImage("data/woods_bg.jpg");
+		background2 = PIXI.Sprite.fromImage("data/woods_bg.jpg");
+		stage.addChild(background);
+		stage.addChild(background2);
+		
+		
+		var pixie = new PIXI.Spine("data/spineboySpineData.json");
+		var scale = 0.3;//window.innerHeight / 700;
+		pixie.position.x = 1024/3;
+		pixie.position.y =	512;
+		pixie.scale.x = pixie.scale.y = scale;
+		pixie.stateData.setMixByName("walk", "jump", 0.1);
+		pixie.stateData.setMixByName("jump", "walk", 0.4);
+		pixie.state.setAnimationByName("walk", true);
+
+		stage.addChild(pixie);
+
+
+		foreground = PIXI.Sprite.fromImage("data/ground_fg.png");
+		foreground2 = PIXI.Sprite.fromImage("data/ground_fg.png");
+		stage.addChild(foreground);
+		stage.addChild(foreground2);
+		foreground.position.y = foreground2.position.y = 640 - foreground2.height;
+		
+		stage.mousedown = stage.touchstart = function(){
+			pixie.state.setAnimationByName("jump", false);
+			pixie.state.addAnimationByName("walk", true);
+		}
+
+		animate();
+	}
+	
+	function animate(){
+	    // update scenery layers
+	    postition += 1;
+		background.position.x = -(postition * 0.6);
+		background.position.x %= 1286 * 2;
+		
+		if(background.position.x<0)background.position.x += 1286 * 2;
+		background.position.x -= 1286;
+		background2.position.x = -(postition * 0.6) + 1286;
+		background2.position.x %= 1286 * 2;
+		
+		if(background2.position.x<0)background2.position.x += 1286 * 2;
+		background2.position.x -= 1286;
+		foreground.position.x = -postition;
+		foreground.position.x %= 1286 * 2;
+		
+		if(foreground.position.x<0)foreground.position.x += 1286 * 2;
+		foreground.position.x -= 1286;
+		foreground2.position.x = -postition + 1286;
+		foreground2.position.x %= 1286 * 2;
+		
+		if(foreground2.position.x<0)foreground2.position.x += 1286 * 2;
+		foreground2.position.x -= 1286;
+		
+	    requestAnimFrame( animate );
+	    renderer.render(stage);
+	}
+	
+
+	</script>
+
 	</body>
-	<script src="assets/js/babylon.1.4.3.js"></script>
-	<script src="assets/js/hand-1.1.2.js"></script>
-	<script src="assets/shaders/Ground/groundMaterial.js"></script>
-    <script src="assets/shaders/Water/waterMaterial.js"></script>
-    <script src="assets/shaders/elevationControl.js"></script>
-	<script src="assets/js/demo1.js"></script>
 </html>

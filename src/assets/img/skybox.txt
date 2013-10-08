@@ -1,6 +1,0 @@
-front - nx
-back - px
-bottom - ny
-top - py
-left - nz
-right - pz
