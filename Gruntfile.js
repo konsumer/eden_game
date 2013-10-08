@@ -40,14 +40,29 @@ module.exports = function(grunt) {
         src: ['./src/**/*']
       },
     },
-    clean: ['build']
+    
+    clean: ['build'],
+    
+    connect: {
+      server: {
+        options: {
+          port: 8000,
+          base: 'src',
+          keepalive:true,
+          open:true
+        }
+      }
+    }
   });
   
   grunt.loadNpmTasks('grunt-node-webkit-builder');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   
   grunt.registerTask('default', ['nodewebkit:mac']);
   grunt.registerTask('mac', ['nodewebkit:mac']);
   grunt.registerTask('win', ['nodewebkit:win']);
   grunt.registerTask('lin', ['nodewebkit:lin']);
+
+  grunt.registerTask('server', ['connect']);
 };
