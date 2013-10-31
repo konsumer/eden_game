@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "mocha -R spec",
+    "start": "grunt server"
   },
   "author": "David Konsumer <konsumer@jetboystudio.com>",
   "license": "MIT",

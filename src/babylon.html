@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Eden's Game</title>
+		<style>
+		html, body, div, canvas {
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			font-family:sans-serif;
+			color: #fff;
+			background: #000;
+		}
+		.no3d {
+			font-size: 100px;
+			text-align:center;
+			height: 100%;
+			width: 100%;
+			position:absolute;
+			left:0;
+			top:0;
+			z-index: 100;
+			margin: auto;
+			padding-top: 100%;
+			margin-top: -85%;
+		}
+		</style>
+	</head>
+	<body>
+		<canvas></canvas>
+	</body>
+	<script src="babylon_assets/js/babylon.1.4.3.js"></script>
+	<script src="babylon_assets/js/hand-1.1.2.js"></script>
+	<script src="babylon_assets/shaders/water/WaterMaterial.js"></script>
+	<script src="babylon_assets/shaders/ground/GroundMaterial.js"></script>
+	<script src="babylon_assets/shaders/ground/ElevationControl.js"></script>
+	<script src="babylon_assets/js/demo1.js"></script>
+</html>

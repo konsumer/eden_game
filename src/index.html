@@ -1,107 +1,19 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-	<title>Eden's Game</title>
-	<style>
-		body, html, canvas {
-			margin: 0;
-			padding: 0;
-			background-color: #000;
-			width: 100%;
-			height: 100%;
-			overflow:hidden;
-		}
-	</style>
-	
-	
-	<script src="pixi.js"></script>
-</head>
-<body>
-	<script>
+<title>Game Engine Ideas</title>
+
+<h1>Game Engine Ideas</h1>
+
+<h2>Demos</h2>
+
+<article>
+	<h3><a href="pixi.html">2D sidescroller</a></h3>
+	<p>This is a 2D side-scroller engine.  It uses pixi.js 2D engine &amp; animations are made with spine. It demonstrates parallax layer-based scrolling, and animation.</p>
+</article>
+
+<article>
+	<h3><a href="babylon.html">3D terrain</a></h3>
+	<p>This is a 3D world generated in shader, using BabylonJS 3D engine. The heightmap (image) defines which textures are loaded, and all textures are blended, based on height.n This also demonstrates a simple skybox &amp; water shader.</p>
+</article>
 
 
-	var ParallaxScene = function(stage, layers, cb){
-		var scenery = this;
-		scenery.position=0;
-		var loader = new PIXI.AssetLoader(layers);
-		scenery.layers = [];
-		scenery.layers2 = [];
-		loader.onComplete = function(){
-			layers.forEach(function(layer, i){
-				scenery.layers[i] = PIXI.Sprite.fromImage(layer);
-				stage.addChild(scenery.layers[i]);
-				scenery.layers2[i] = PIXI.Sprite.fromImage(layer);
-				stage.addChild(scenery.layers2[i]);
-			});
-			cb();
-		}
-		loader.load();
-	}
-
-	ParallaxScene.prototype.update = function(){
-		var scenery = this;
-		scenery.position -= 1;
-		scenery.layers.forEach(function(layer, i){
-			layer.position.x = (scenery.position*(i+1)*2) % layer.width;
-			scenery.layers2[i].position.x = ((scenery.position*(i+1)*2) % layer.width) + layer.width;
-		});
-	}
-
-	ParallaxScene.prototype.resize = function(){
-		var scenery = this;
-		scenery.layers.forEach(function(layer, i){
-			layer.scale.x = layer.scale.y = scenery.layers2[i].scale.x = scenery.layers2[i].scale.y = window.innerHeight / 512;
-			layer.position.y = window.innerHeight - layer.height;
-			scenery.layers2[i].position.y = layer.position.y;
-		});
-	}
-
-	var stage = new PIXI.Stage(0x000000, true);
-	var renderer = new PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-	renderer.view.style.display = "block";
-	renderer.view.style.width = "100%"
-	renderer.view.style.height = "100%"
-	document.body.appendChild(renderer.view);
-
-	var loader = new PIXI.AssetLoader(["data/spineboy.json", "data/spineboySpineData.json"]);
-	loader.onComplete = function(){
-		var scenery = new ParallaxScene(stage, [
-			'data/forest/layer3.jpg',
-			'data/forest/layer2.png',
-			'data/forest/layer1.png'
-		], function(){
-			var pixie = new PIXI.Spine("data/spineboySpineData.json");
-			pixie.stateData.setMixByName("walk", "jump", 0.1);
-			pixie.stateData.setMixByName("jump", "walk", 0.8);
-			pixie.state.setAnimationByName("walk", true);
-			stage.addChildAt(pixie, 4);
-
-			window.onresize = function(){
-				renderer.resize(window.innerWidth,window.innerHeight);
-				pixie.position.x = window.innerWidth/2;
-				pixie.position.y = window.innerHeight - ((window.innerHeight / 1024) * 180);
-				pixie.scale.x = pixie.scale.y = window.innerHeight / 1024;
-				scenery.resize();
-			}
-			window.onresize();
-
-			stage.mousedown = stage.touchstart = function(){
-				pixie.state.setAnimationByName("jump", false);
-				pixie.state.addAnimationByName("walk", true);
-			}
-		});
-
-		function animate(){
-		    requestAnimFrame(animate);
-		    scenery.update();
-		    renderer.render(stage);
-		}
-		
-		animate();
-	}
-	loader.load();	
-
-	</script>
-
-	</body>
-</html>
+<h2>Build System</h2>
+<p>I am using grunt with node-webkit to build standalone lin/win/mac versions of this demo.</p>
